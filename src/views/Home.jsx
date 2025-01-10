@@ -16,15 +16,17 @@ import {
     ModalHeader,
     ModalBody,
     ModalCloseButton,
-    useDisclosure,
+    useDisclosure, Image
 } from "@chakra-ui/react";
 import { RiCalendarEventLine } from "react-icons/ri";
 import { TbTimelineEventPlus } from "react-icons/tb";
 import Calendar from "../components/Calendar";
 import EventForm from "../components/EventForm";
 import EventList from "../components/EventList";
+import { useNavigate, Navigate } from "react-router-dom";
 
 export const Home = () => {
+    const navigate = useNavigate();
     const [events, setEvents] = useState(() => {
         const storedEvents = localStorage.getItem("events");
         return storedEvents ? JSON.parse(storedEvents) : [];
@@ -146,6 +148,17 @@ export const Home = () => {
 
     return (
         <Flex direction="column" align="center" justify="center" minHeight="100vh" minWidth="100vw" bg="#06162e">
+            <Box bg="blue.800" width="100vw" padding={4} margin={0}>
+                <Flex align="start" color="white" justifyContent="space-between">
+                    <Box width="50%" display="flex" justifyContent="start" alignItems="center">
+                        <Image src="https://cdn-icons-png.flaticon.com/512/1458/1458512.png" height={10} marginRight="5" />
+                        <Text fontSize="xl" fontWeight="bold">Mi App de Eventos</Text>
+                    </Box>
+                    <Box width="50%" display="flex" justifyContent="end" alignItems="center">
+                        <Button colorScheme="teal" variant="outline" marginRight={5} onClick={() => navigate('/login')}>Salir</Button>
+                    </Box>
+                </Flex>
+            </Box>
             <Box display="flex" bg="#0e3061" width="100vw" height="100vh">
                 <Box width="40%" padding={10} color={"white"}>
                     <Calendar

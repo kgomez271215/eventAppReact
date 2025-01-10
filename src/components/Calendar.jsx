@@ -27,7 +27,6 @@ const Calendar = ({ events, onAddEvent, onDeleteEvent }) => {
             plugins={[dayGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             events={events}
-            dateClick={handleDateClick}
             locale="es"
             locales={[esLocale]}
             timeZone="local"

@@ -48,8 +48,8 @@ export const Login = () => {
                                 </InputGroup>
                                 <Text textAlign="end" fontSize={"11px"} fontWeight={"bold"} marginTop={2}>¿Olvidaste tu contraseña?</Text>
                             </Stack>
-                            <Button width="100%" colorScheme='whiteAlpha'>Iniciar Sesión</Button>
-                            <Button width="100%" colorScheme='blackAlpha' marginTop={3} onClick={handleNavigateHome}>Ingresar Sin Conexion</Button>
+                            <Button width="100%" colorScheme='whiteAlpha' color="white">Iniciar Sesión</Button>
+                            <Button color="white" width="100%" colorScheme='blackAlpha' marginTop={3} onClick={handleNavigateHome}>Ingresar Sin Conexion</Button>
                             <Box display="flex" alignItems="center" justifyContent="center" width="100%" marginTop={10}>
                                 <Divider marginEnd={5} />
                                 <Text fontWeight={"bold"} color={"white"}> O </Text>
