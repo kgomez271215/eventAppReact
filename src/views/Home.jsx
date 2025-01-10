@@ -9,6 +9,7 @@ import {
     TabPanels,
     TabPanel,
     Button,
+    Badge,
     Modal,
     ModalOverlay,
     ModalContent,
@@ -29,7 +30,17 @@ export const Home = () => {
         return storedEvents ? JSON.parse(storedEvents) : [];
     });
     const [eventToEdit, setEventToEdit] = useState(null);
+    const [selectedFilter, setSelectedFilter] = useState(null);
     const { isOpen, onOpen, onClose } = useDisclosure();
+
+
+    const categoryColors = {
+        Trabajo: "blue",
+        Personal: "green",
+        Reuniones: "yellow",
+        Fiesta: "purple",
+        Capacitaciones: "red",
+    };
 
     useEffect(() => {
         if (Notification.permission === "default") {
@@ -110,6 +121,29 @@ export const Home = () => {
         localStorage.setItem("events", JSON.stringify(updatedEvents));
     };
 
+    const renderFilteredEvents = (status) => {
+        const filtered = events.filter(
+            (event) => event.status === status && (!selectedFilter || event.category === selectedFilter)
+        );
+
+        if (filtered.length === 0) {
+            return <Text>No hay eventos disponibles.</Text>;
+        }
+
+        return (
+            <EventList
+                events={filtered}
+                onArchive={handleArchiveEvent}
+                onDelete={handleDeleteEvent}
+                onRestore={handleRestoreEvent}
+                onEdit={(event) => {
+                    setEventToEdit(event);
+                    onOpen();
+                }}
+            />
+        );
+    };
+
     return (
         <Flex direction="column" align="center" justify="center" minHeight="100vh" minWidth="100vw" bg="#06162e">
             <Box display="flex" bg="#0e3061" width="100vw" height="100vh">
@@ -118,7 +152,8 @@ export const Home = () => {
                         events={events.filter((event) => event.status === "active")}
                         onAddEvent={handleAddEvent}
                         onDeleteEvent={handleDeleteEvent}
-                    />                </Box>
+                    />
+                </Box>
                 <Box display="flex" alignItems="start" justifyContent="center" width="60%" padding={0} flexDirection={"column"}>
                     <Box display="flex" alignItems="center" justifyContent="center" width="100%" padding={5} color={"white"} fontSize={35} fontWeight={"bold"}>
                         <Text marginRight={5}>Eventos y Recordatorios</Text>
@@ -132,51 +167,48 @@ export const Home = () => {
                                 <Tab>Eliminados</Tab>
                             </TabList>
                             <TabPanels>
-                                <TabPanel>
-                                    <Box display="flex" justifyContent="end" width="100%" padding={"0px"} flexDirection={"row"}>
-                                        <Box display="flex" justifyContent="end" width="80%" padding={5}></Box>
-                                        <Box display="flex" justifyContent="end" width="20%" padding={5}>
-                                            <Button leftIcon={<TbTimelineEventPlus />} colorScheme="blue" onClick={onOpen}>
-                                                Nuevo
-                                            </Button>
+                                {["active", "archived", "deleted"].map((status, index) => (
+                                    <TabPanel key={index}>
+                                        <Box display="flex" justifyContent="space-between" marginBottom={4}>
+                                            <Box>
+                                                <Badge
+                                                    colorScheme={!selectedFilter ? "gray" : "teal"}
+                                                    cursor="pointer"
+                                                    padding="2px 10px 2px 10px"
+                                                    borderRadius={15}
+                                                    marginRight={2}
+                                                    onClick={() => setSelectedFilter(null)}
+                                                    variant={!selectedFilter ? "solid" : "outline"}
+                                                >
+                                                    Todos
+                                                </Badge>
+                                                {Object.entries(categoryColors).map(([category, color]) => (
+                                                    <Badge
+                                                        key={category}
+                                                        colorScheme={color}
+                                                        cursor="pointer"
+                                                        marginRight={2}
+                                                        padding="2px 10px 2px 10px"
+                                                        borderRadius={15}
+                                                        onClick={() => setSelectedFilter(selectedFilter === category ? null : category)}
+                                                        variant={selectedFilter === category ? "solid" : "outline"}
+                                                    >
+                                                        {category}
+                                                    </Badge>
+                                                ))}
+                                            </Box>
+                                            {status === "active" && (
+                                                <Button leftIcon={<TbTimelineEventPlus />} colorScheme="blue" onClick={() => {
+                                                    setEventToEdit(null)
+                                                    onOpen()
+                                                }} >
+                                                    Nuevo
+                                                </Button>
+                                            )}
                                         </Box>
-
-                                    </Box>
-                                    <EventList
-                                        events={events.filter((event) => event.status === "active")}
-                                        onArchive={handleArchiveEvent}
-                                        onDelete={handleDeleteEvent}
-                                        onRestore={handleRestoreEvent}
-                                        onEdit={(event) => {
-                                            setEventToEdit(event);
-                                            onOpen();
-                                        }}
-                                    />
-                                </TabPanel>
-                                <TabPanel>
-                                    <EventList
-                                        events={events.filter((event) => event.status === "archived")}
-                                        onArchive={handleArchiveEvent}
-                                        onDelete={handleDeleteEvent}
-                                        onRestore={handleRestoreEvent}
-                                        onEdit={(event) => {
-                                            setEventToEdit(event);
-                                            onOpen();
-                                        }}
-                                    />
-                                </TabPanel>
-                                <TabPanel>
-                                    <EventList
-                                        events={events.filter((event) => event.status === "deleted")}
-                                        onArchive={handleArchiveEvent}
-                                        onDelete={handleDeleteEvent}
-                                        onRestore={handleRestoreEvent}
-                                        onEdit={(event) => {
-                                            setEventToEdit(event);
-                                            onOpen();
-                                        }}
-                                    />
-                                </TabPanel>
+                                        {renderFilteredEvents(status)}
+                                    </TabPanel>
+                                ))}
                             </TabPanels>
                         </Tabs>
                     </Box>
@@ -190,10 +222,15 @@ export const Home = () => {
                     <ModalHeader>Crear Nuevo Evento</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <EventForm event={eventToEdit} onEditEvent={handleEditEvent} onAddEvent={handleAddEvent} onClose={() => {
-                            setEventToEdit(null);
-                            onClose();
-                        }} />
+                        <EventForm
+                            event={eventToEdit}
+                            onEditEvent={handleEditEvent}
+                            onAddEvent={handleAddEvent}
+                            onClose={() => {
+                                setEventToEdit(null);
+                                onClose();
+                            }}
+                        />
                     </ModalBody>
                 </ModalContent>
             </Modal>
